@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.532.3</version>
+	</parent>
+
+	<artifactId>sasunitplugin</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>hpi</packaging>
+	<name>Jenkins SASUnit Plugin</name>
+	<description>Adds support for SASUnit the unit testing framework for SAS</description>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/SASUnit+Plugin</url>
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+        </license>
+    </licenses>
+	<developers>
+		<developer>
+			<id>HMSAnalyticalSoftware</id>
+			<name>HMSAnalyticalSoftware</name>
+			<email>github@analytical-software.de</email>
+		</developer>
+	</developers>
+	<reporting>                                                                              
+	    <plugins>                                                                            
+		<plugin>                                                                         
+		    <groupId>org.apache.maven.plugins</groupId>                                  
+		    <artifactId>maven-javadoc-plugin</artifactId>                                
+		    <version>2.9</version>                                                       
+		    <configuration>                                                              
+		        <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>                         
+		        <docletArtifact>                                                         
+		            <groupId>org.umlgraph</groupId>                                      
+		            <artifactId>umlgraph</artifactId>                                    
+		            <version>5.6</version>                                               
+		        </docletArtifact>                                                        
+		        <additionalparam>-views -all</additionalparam>                           
+		        <useStandardDocletOptions>true</useStandardDocletOptions>                
+		    </configuration>                                                             
+		</plugin>                                                                        
+	    </plugins>                                                                           
+	</reporting> 
+	
+	<scm>
+		<connection>scm:git:ssh://github.com/jenkinsci/sasunit-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/sasunit-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/sasunit-plugin</url>
+	</scm>
+	
+	<distributionManagement>
+	   <repository>
+	      <id>maven.jenkins-ci.org</id>
+	      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+	   </repository>
+	</distributionManagement>
+</project>
