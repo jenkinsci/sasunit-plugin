@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>sasunit-plugin</artifactId>
-	<version>1.015-SNAPSHOT</version>
+	<version>1.016-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>SASUnit Plugin</name>
 	<description>Adds support for SASUnit, the unit testing framework for SAS</description>
@@ -31,13 +31,6 @@
 		<developerConnection>scm:git:https://github.com/jenkinsci/${project.artifactId}.git</developerConnection>
 		<url>https://github.com/jenkinsci/${project.artifactId}</url>
 	</scm>
-
-	<distributionManagement>
-	   <repository>
-	      <id>maven.jenkins-ci.org</id>
-	      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
-	   </repository>
-	</distributionManagement>
 	<repositories>
 		<repository>
 			<id>repo.jenkins-ci.org</id>
