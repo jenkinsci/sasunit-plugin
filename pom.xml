@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>sasunit-plugin</artifactId>
-	<version>1.023-SNAPSHOT</version>
+	<version>1.023</version>
 	<packaging>hpi</packaging>
 	<name>SASUnit Plugin</name>
 	<description>Adds support for SASUnit, the unit testing framework for SAS</description>
@@ -30,7 +30,8 @@
 		<connection>scm:git:https://github.com/jenkinsci/${project.artifactId}.git</connection>
 		<developerConnection>scm:git:https://github.com/jenkinsci/${project.artifactId}.git</developerConnection>
 		<url>https://github.com/jenkinsci/${project.artifactId}</url>
-	</scm>
+	  <tag>sasunit-plugin-1.023</tag>
+  </scm>
 	<repositories>
 		<repository>
 			<id>repo.jenkins-ci.org</id>
