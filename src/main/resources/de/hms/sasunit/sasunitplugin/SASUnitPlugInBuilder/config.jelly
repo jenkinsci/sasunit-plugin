@@ -16,10 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-	<f:entry title="${%SASUnit version}" field="sasUnitVersion">
-		<select class="setting-input" name="SASUnitPlugInBuilder.sasUnitVersion">
+	<f:entry title="${%SASUnit version}" field="sasunitVersion">
+		<select class="setting-input" name="SASUnitPlugInBuilder.sasunitVersion">
 			<j:forEach var="inst" items="${descriptor.installations}">
-				<f:option selected="${inst.name==instance.sasUnitVersion}">${inst.name}</f:option>
+				<f:option selected="${inst.name==instance.sasunitVersion}">${inst.name}</f:option>
 			</j:forEach>
 		</select>
 	</f:entry>

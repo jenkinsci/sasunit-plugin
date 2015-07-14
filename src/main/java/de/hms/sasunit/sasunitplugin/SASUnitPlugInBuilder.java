@@ -85,34 +85,50 @@ public class SASUnitPlugInBuilder extends Builder{
    * Relative path to SASUnit batch file to be executed
    * @param doxygenBatch
    * Relative path to Doxygen batch file to be executed
-   * @param sasUnitVersion
+   * @param sasunitVersion
    * SASUnit Version used to run the test
    * @param createDoxygenDocu
    * Doxygen documentation is created if set to true
    */
-   @DataBoundConstructor
-   public SASUnitPlugInBuilder(String sasunitBatch, String doxygenBatch, String sasUnitVersion, boolean createDoxygenDocu) {
-      this.sasunitBatch 		= sasunitBatch;
-      this.doxygenBatch 		= doxygenBatch;
-      this.sasunitVersion		= sasUnitVersion;
-      this.createDoxygenDocu	= createDoxygenDocu;
-   }
+	@DataBoundConstructor
+	public SASUnitPlugInBuilder(String sasunitBatch, String doxygenBatch, String sasunitVersion, boolean createDoxygenDocu) {
+		this.sasunitBatch 		= sasunitBatch;
+		this.doxygenBatch 		= doxygenBatch;
+		this.sasunitVersion 	= sasunitVersion;
+		this.createDoxygenDocu 	= createDoxygenDocu;
+	}
 
-   public String getSasunitBatch() {
-      return sasunitBatch;
-   }
+	public String getSasunitBatch() {
+		return sasunitBatch;
+	}
 
-   public String getDoxygenBatch() {
-      return doxygenBatch;
-   }
-   
-   public String getSasunitVersion() {
-      return sasunitVersion;
-   }
+	public String getDoxygenBatch() {
+		return doxygenBatch;
+	}
+
+	public String getSasunitVersion() {
+		return sasunitVersion;
+	}
 
    public boolean isCreateDoxygenDocu() {
-      return createDoxygenDocu;
-   }
+		return createDoxygenDocu;
+	}
+   
+   /**
+   * Method loops over all available SASUnit installations and returns the one specified in the project setup. 
+   * If not found, the method returns null.
+   * 
+   * @return SASUnitInstallation
+   */
+	public SASUnitInstallation getInstallation() {
+		if (sasunitVersion == null)
+			return null;
+		for (SASUnitInstallation i : DESCRIPTOR.getInstallations()) {
+			if (sasunitVersion.equals(i.getName()))
+				return i;
+		}
+		return null;
+	}
 
    /*
    * (non-Javadoc)
@@ -133,6 +149,7 @@ public class SASUnitPlugInBuilder extends Builder{
       listener.started(buildStepCause);
       
       EnvVars env = build.getEnvironment(listener);
+      
       SASUnitInstallation installation = getInstallation();
       if (installation == null) {
          listener.fatalError(Messages.SASUnitPlugInBuilder_SASUnitInstallationNotFound());
@@ -140,6 +157,9 @@ public class SASUnitPlugInBuilder extends Builder{
       }
       installation = installation.forNode(Computer.currentComputer().getNode(), listener);
       installation = installation.forEnvironment(env);
+      
+      ArgumentListBuilder sasunitArgs = new ArgumentListBuilder();
+      ArgumentListBuilder doxygenArgs = new ArgumentListBuilder();
       
       // Get relevant directories on node
       FilePath projectWorkspace 	  = build.getWorkspace();
@@ -149,42 +169,54 @@ public class SASUnitPlugInBuilder extends Builder{
       FilePath doxygenBinFolder    = new FilePath(projectWorkspace, getDoxygenBatch()).getParent();
       FilePath sasUnitBin          = new FilePath(projectWorkspace, getSasunitBatch());
       // used Strings
-      String sasUnitRoot 		     = installation.getHome();
+      String sasUnitRoot 		   = installation.getHome();
       String sasUnitBatchFile      = new FilePath(projectWorkspace, getSasunitBatch()).getName();
       String doxygenBatchFile      = new FilePath(projectWorkspace, getDoxygenBatch()).getName();
-      String cmd;
+      String [] cmd;
       // used booleans
-      boolean useDoxygen			  = createDoxygenDocu == true && doxygenBatch != null;
+      boolean useDoxygen			= createDoxygenDocu == true && doxygenBatch != null;
       boolean result;
       
       // Log to console
       PrintStream logger = listener.getLogger();
       logger.append(Messages.SASUnitPlugInBuilder_Folders())
-      .append("Project Workspace:  " + projectWorkspace.getRemote()  + "\n")
-      .append("sasUnitRoot:        " + sasUnitRoot                   + "\n")
-      .append("sasUnitBinFolder:   " + sasUnitBinFolder.getRemote()  + "\n")
-      .append("sasUnitBin:         " + sasUnitBin.getRemote()        + "\n")
-      .append("doxygenBinFolder:   " + doxygenBinFolder.getRemote()  + "\n")
-      
-      .append(Messages.SASUnitPlugInBuilder_Files())
-      .append("projectRunAll:      " + projectRunAll                 + "\n")
-      .append("sasUnitBatchFile:   " + sasUnitBatchFile              + "\n")
-      .append("doxygenBatchFile:   " + doxygenBatchFile              + "\n")
-      
-      .append(Messages.SASUnitPlugInBuilder_SASUnitVersion())
-      .append("SASUnit Version:    " + installation.getName()        + "\n")
-      .append("SASUnit Path:       " + installation.getHome()        + "\n")
+	      .append("Project Workspace:  " + projectWorkspace.getRemote()  + "\n")
+	      .append("sasUnitRoot:        " + sasUnitRoot                   + "\n")
+	      .append("sasUnitBinFolder:   " + sasUnitBinFolder.getRemote()  + "\n")
+	      .append("sasUnitBin:         " + sasUnitBin.getRemote()        + "\n")
+	      .append("doxygenBinFolder:   " + doxygenBinFolder.getRemote()  + "\n")
+	      
+	      .append(Messages.SASUnitPlugInBuilder_Files())
+	      .append("projectRunAll:      " + projectRunAll                 + "\n")
+	      .append("sasUnitBatchFile:   " + sasUnitBatchFile              + "\n")
+	      .append("doxygenBatchFile:   " + doxygenBatchFile              + "\n")
+	      
+	      .append(Messages.SASUnitPlugInBuilder_SASUnitVersion())
+	      .append("SASUnit Version:    " + installation.getName()        + "\n")
+	      .append("SASUnit Path:       " + installation.getHome()        + "\n")
       ;
 
       // Execute SASUnit batch file
       logger.append(Messages.SASUnitPlugInBuilder_startingTest());
       // Linux / Unix
       if (launcher.isUnix()) {
-         cmd = " ./" + sasUnitBatchFile + " " + sasUnitRoot;
+ 		 sasunitArgs.add("./" + sasUnitBatchFile);
+ 		 sasunitArgs.add("\"" + sasUnitRoot + "\"");
+		 
+		 cmd = sasunitArgs.toCommandArray();
       }
       //Windows
       else{
-         cmd = "cmd /c call " + sasUnitBatchFile + " " + sasUnitRoot;
+    	 sasunitArgs.add("cmd.exe", "/C");
+    	// add an extra set of quotes after cmd/c to handle paths with spaces in Windows
+    	 sasunitArgs.add("\"");
+		 sasunitArgs.add(sasUnitBatchFile);
+
+		 sasunitArgs.add(sasUnitRoot);
+		 
+		 sasunitArgs.add("\"");
+ 	 
+		 cmd = sasunitArgs.toCommandArray();
       }
       result = execCmdJob(cmd, launcher, listener, sasUnitBinFolder);
       if ( result == false){
@@ -197,13 +229,18 @@ public class SASUnitPlugInBuilder extends Builder{
          
          // Linux / Unix
          if (launcher.isUnix()) {
-            cmd = " ./" + doxygenBatchFile;
+        	 doxygenArgs.add("./" + doxygenBatchFile);
+        	 
+        	 cmd = doxygenArgs.toCommandArray();
          }
          //Windows
          else{
-            cmd = "cmd /c call " + doxygenBatchFile;
+        	 doxygenArgs.add("cmd.exe", "/C");
+        	 doxygenArgs.add(doxygenBatchFile);
+        	 
+        	 cmd = doxygenArgs.toCommandArray();
          }
-         result = execCmdJob(cmd, launcher, listener, doxygenBinFolder);
+         result = execCmdJob(cmd, launcher, listener, sasUnitBinFolder);
          if (result == false){
             return false;
          }
@@ -214,53 +251,39 @@ public class SASUnitPlugInBuilder extends Builder{
    }
    
    /**
-   * Method loops over all available SASUnit installations and returns the one specified in the project setup. 
-   * If not found, the method returns null.
-   * 
-   * @return SASUnitInstallation
-   */
-   public SASUnitInstallation getInstallation() {
-      if (sasunitVersion == null)
-      return null;
-      for (SASUnitInstallation i : DESCRIPTOR.getInstallations()) {
-         if (sasunitVersion.equals(i.getName()))
-         return i;
-      }
-      return null;
-   }
-
-   /**
    * Method to execute commands in a linux shell or windows cmd window. Used to start creation of
    * SASUnit and Doxygen reports in batch mode.
    * 
    * @param cmd 			The String to be executed in a linux shell or windows cmd window
    * @param launcher 	The Launcher of the Build
    * @param listener 	The BuildListender that receives events that happen during the build
-   * @param rootFolder The FilePath in which the cmd shall be executed in
    * @return boolean
    */
-   public boolean execCmdJob(String cmd, Launcher launcher, BuildListener listener, FilePath rootFolder){
-      ArgumentListBuilder args = new ArgumentListBuilder();
-      args.addTokenized(cmd);
-      
-      try {
-         int r;
-         r = launcher.launch().cmds(args).stdout(listener).pwd(rootFolder).join();
-         if (r != 0) {
-            listener.finished(Result.FAILURE);
-            return false;
-         }
-      } catch (IOException ioe) {
-         ioe.printStackTrace(listener.fatalError(Messages.SASUnitPlugInBuilder_Execution() + " " + args + " " + Messages.SASUnitPlugInBuilder_NotSuccessful()));
-         listener.finished(Result.FAILURE);
-         return false;
-      } catch (InterruptedException ie) {
-         ie.printStackTrace(listener.fatalError(Messages.SASUnitPlugInBuilder_Execution() + " " + args + " " + Messages.SASUnitPlugInBuilder_NotSuccessful()));
-         listener.finished(Result.FAILURE);
-         return false;
-      }
-      return true;
-   }
+	public boolean execCmdJob(String[] cmd, Launcher launcher, BuildListener listener, FilePath rootFolder) {
+		System.out.println();
+		for (int i = 0; i < cmd.length; i++) {
+			System.out.print(cmd[i]);
+		}
+		System.out.println();
+		System.out.println();
+		try {
+			int r;
+			r = launcher.launch().cmds(cmd).stdout(listener).pwd(rootFolder).join();
+			if (r != 0) {
+				listener.finished(Result.FAILURE);
+				return false;
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace(listener.fatalError(Messages.SASUnitPlugInBuilder_Execution() + " " + cmd + " "	+ Messages.SASUnitPlugInBuilder_NotSuccessful()));
+			listener.finished(Result.FAILURE);
+			return false;
+		} catch (InterruptedException ie) {
+			ie.printStackTrace(listener.fatalError(Messages.SASUnitPlugInBuilder_Execution() + " " + cmd + " " + Messages.SASUnitPlugInBuilder_NotSuccessful()));
+			listener.finished(Result.FAILURE);
+			return false;
+		}
+		return true;
+	}
    
    @Override
    public Descriptor<Builder> getDescriptor() {
@@ -270,13 +293,13 @@ public class SASUnitPlugInBuilder extends Builder{
    /**
    * Descriptor should be singleton.
    */
+   @Extension
    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
    /**
    * Descriptor for {@link SASUnitPlugInBuilder}. Used as a singleton.
    * This descriptor persists all SASUnit installations configured
    */
-   @Extension
    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
       
       @CopyOnWrite
@@ -287,7 +310,7 @@ public class SASUnitPlugInBuilder extends Builder{
       *
       * @see hudson.model.Descriptor#getDisplayName()
       */
-      public DescriptorImpl() {
+      DescriptorImpl() {
          super(SASUnitPlugInBuilder.class);
          load();
       }
@@ -319,6 +342,7 @@ public class SASUnitPlugInBuilder extends Builder{
       /**
       * This human readable name is used in the configuration screen.
       */
+      @Override
       public String getDisplayName() {
          return Messages.SASUnitPlugInBuilder_ExecuteSASUnitTestSuite();
       }
@@ -335,11 +359,14 @@ public class SASUnitPlugInBuilder extends Builder{
       /**
       * Set the SASUnit installations.
       */
-      public void setInstallations(final SASUnitInstallation... installations) {
+      public void setInstallations(SASUnitInstallation... installations) {
          this.installations = installations;
          save();
       }
       
+      /**
+      * Obtains the {@link SASUnitInstallation.DescriptorImpl} instance.
+      */
       public SASUnitInstallation.DescriptorImpl getToolDescriptor() {
          return ToolInstallation.all().get(SASUnitInstallation.DescriptorImpl.class);
       }		

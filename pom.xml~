@@ -7,11 +7,11 @@
 	</parent>
 
 	<artifactId>sasunit-plugin</artifactId>
-	<version>1.023-SNAPSHOT</version>
+	<version>1.019-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>SASUnit Plugin</name>
 	<description>Adds support for SASUnit, the unit testing framework for SAS</description>
-	<url>https://wiki.jenkins-ci.org/display/JENKINS/SASUnit+Plugin</url>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/SASUnit+Plugin</url>
 	<licenses>
 		<license>
 			<name>GNU General Public License (GPL)</name>
