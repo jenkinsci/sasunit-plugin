@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>sasunit-plugin</artifactId>
-	<version>1.023</version>
+	<version>1.024-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>SASUnit Plugin</name>
 	<description>Adds support for SASUnit, the unit testing framework for SAS</description>
